@@ -2,74 +2,88 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#4f46e5">
   <title>ai-calendar-pro</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header>
-    <h1>📅 ai-calendar-pro</h1>
-    <div id="auth"></div>
-  </header>
-
-  <main id="signedOut" hidden>
-    <section class="card hero">
-      <h2>Stop micromanaging your calendar.</h2>
-      <p>Add an all-day task like <b>Gym</b> to Google Calendar. We turn it into a timed event at the best free slot, using your rules.</p>
+  <section id="login" class="login" hidden>
+    <div class="login-card">
+      <img src="icon.svg" alt="" width="64" height="64">
+      <h1>ai-calendar-pro</h1>
+      <p>Your Google Calendar, in a faster and friendlier place.</p>
+      <p id="loginNote" class="muted"></p>
       <button id="signIn" class="primary">Sign in with Google</button>
-    </section>
-  </main>
+      <p class="muted small">We only talk to Google Calendar from your browser. Your events are not stored on our servers.</p>
+    </div>
+  </section>
 
-  <main id="signedIn" hidden>
-    <section class="card">
-      <h2>1. Connect your calendar</h2>
-      <p id="connStatus"></p>
-      <button id="connect" class="primary">Connect Google Calendar</button>
-      <button id="runNow" hidden>Run scheduler now</button>
-      <p class="muted" id="lastRun"></p>
-      <label>Your timezone <input id="tz" list="tzlist"></label>
-      <datalist id="tzlist"></datalist>
-    </section>
+  <div id="app" hidden>
+    <header class="top">
+      <button id="menu" class="icon" aria-label="Calendars">☰</button>
+      <h1 id="title">Calendar</h1>
+      <div class="nav">
+        <button id="prev" class="icon" aria-label="Previous">‹</button>
+        <button id="next" class="icon" aria-label="Next">›</button>
+        <button id="today">Today</button>
+      </div>
+      <div class="seg" id="views" role="tablist">
+        <button data-view="day">Day</button>
+        <button data-view="week" id="weekBtn">Week</button>
+        <button data-view="month">Month</button>
+      </div>
+    </header>
 
-    <section class="card">
-      <h2>2. Your rules</h2>
-      <p class="muted">Create an <b>all-day</b> event in Google Calendar with the same name as a rule. Priority 1 is the most important.</p>
-      <ul id="tasks" class="list"></ul>
-      <form id="taskForm" autocomplete="off">
-        <h3 id="formTitle">Add a rule</h3>
-        <div class="grid">
-          <label>Name <input name="name" required placeholder="Gym"></label>
-          <label>Ideal time <input name="idealTime" placeholder="3pm"></label>
-          <label>Duration <input name="duration" placeholder="1h" value="1h"></label>
-          <label>Priority (1 = highest) <input name="priority" type="number" min="1" max="9" value="3"></label>
-          <label>Buffer before (min) <input name="bufferBefore" type="number" min="0" value="0"></label>
-          <label>Buffer after (min) <input name="bufferAfter" type="number" min="0" value="0"></label>
-          <label>Earliest <input name="windowStart" placeholder="6am"></label>
-          <label>Latest end <input name="windowEnd" placeholder="10pm"></label>
-          <label>After task <input name="afterTask" placeholder="work"></label>
-          <label>Gap after (min) <input name="afterGap" type="number" min="0" value="0"></label>
-          <label>Before task <input name="beforeTask" placeholder="sleep"></label>
-          <label>Gap before (min) <input name="beforeGap" type="number" min="0" value="0"></label>
-          <label class="wide">Keep away from <input name="avoid" placeholder="sleep:240, meeting:30"></label>
-          <label class="check"><input name="movable" type="checkbox" checked> Can be moved</label>
-        </div>
-        <details>
-          <summary>Different time on certain days</summary>
-          <div class="grid days" id="days"></div>
-        </details>
-        <p id="formError" class="error"></p>
-        <button class="primary" type="submit">Save rule</button>
-        <button type="button" id="cancelEdit" hidden>Cancel</button>
-      </form>
-    </section>
+    <main id="main"></main>
+    <div id="busy" class="busy" hidden></div>
+    <button id="fab" class="fab" aria-label="New event">+</button>
 
-    <section class="card">
-      <h2>3. Next 7 days</h2>
-      <button id="refresh">Refresh</button>
-      <ul id="events" class="list"></ul>
-    </section>
-  </main>
+    <div id="scrim" class="scrim" hidden></div>
+    <aside id="drawer" class="drawer" aria-label="Calendars">
+      <h2>My calendars</h2>
+      <ul id="calList"></ul>
+      <p id="who" class="muted small"></p>
+      <button id="signOut">Sign out</button>
+    </aside>
+  </div>
 
+  <dialog id="evDialog">
+    <form id="evForm" autocomplete="off">
+      <h2 id="evDialogTitle">New event</h2>
+      <label>Title <input id="evTitle" placeholder="Add title"></label>
+      <label class="check"><input id="evAllDay" type="checkbox"> All day</label>
+      <div class="row">
+        <label>Starts <input id="evSd" type="date" required></label>
+        <label>&nbsp;<input id="evSt" type="time"></label>
+      </div>
+      <div class="row">
+        <label>Ends <input id="evEd" type="date" required></label>
+        <label>&nbsp;<input id="evEt" type="time"></label>
+      </div>
+      <label>Calendar <select id="evCal"></select></label>
+      <label>Repeat <select id="evRepeat"></select></label>
+      <label>Reminder <select id="evReminder"></select></label>
+      <label>Location <input id="evLoc"></label>
+      <label>Description <textarea id="evDesc" rows="3"></textarea></label>
+      <fieldset id="evScope" hidden>
+        <legend>This is a repeating event. Apply to:</legend>
+        <label class="check"><input type="radio" name="scope" value="this" checked> This event</label>
+        <label class="check"><input type="radio" name="scope" value="all"> All events in the series</label>
+      </fieldset>
+      <p id="evError" class="error" role="alert"></p>
+      <div class="actions">
+        <button type="button" id="evDelete" class="danger">Delete</button>
+        <span class="spacer"></span>
+        <button type="button" id="evCancel">Cancel</button>
+        <button type="submit" id="evSave" class="primary">Save</button>
+      </div>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" hidden></div>
   <script type="module" src="app.js"></script>
 </body>
 </html>

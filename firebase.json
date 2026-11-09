@@ -1,12 +1,6 @@
 {
   "hosting": {
     "public": "public",
-    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
-    "rewrites": [
-      { "source": "/oauthCallback", "function": "oauthCallback" },
-      { "source": "/action", "function": "action" }
-    ]
-  },
-  "functions": [{ "source": "functions", "codebase": "default", "runtime": "nodejs20" }],
-  "firestore": { "rules": "firestore.rules", "indexes": "firestore.indexes.json" }
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"]
+  }
 }
