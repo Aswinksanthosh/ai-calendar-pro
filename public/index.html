@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ai-calendar-pro</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>📅 ai-calendar-pro</h1>
+    <div id="auth"></div>
+  </header>
+
+  <main id="signedOut" hidden>
+    <section class="card hero">
+      <h2>Stop micromanaging your calendar.</h2>
+      <p>Add an all-day task like <b>Gym</b> to Google Calendar. We turn it into a timed event at the best free slot, using your rules.</p>
+      <button id="signIn" class="primary">Sign in with Google</button>
+    </section>
+  </main>
+
+  <main id="signedIn" hidden>
+    <section class="card">
+      <h2>1. Connect your calendar</h2>
+      <p id="connStatus"></p>
+      <button id="connect" class="primary">Connect Google Calendar</button>
+      <button id="runNow" hidden>Run scheduler now</button>
+      <p class="muted" id="lastRun"></p>
+      <label>Your timezone <input id="tz" list="tzlist"></label>
+      <datalist id="tzlist"></datalist>
+    </section>
+
+    <section class="card">
+      <h2>2. Your rules</h2>
+      <p class="muted">Create an <b>all-day</b> event in Google Calendar with the same name as a rule. Priority 1 is the most important.</p>
+      <ul id="tasks" class="list"></ul>
+      <form id="taskForm" autocomplete="off">
+        <h3 id="formTitle">Add a rule</h3>
+        <div class="grid">
+          <label>Name <input name="name" required placeholder="Gym"></label>
+          <label>Ideal time <input name="idealTime" placeholder="3pm"></label>
+          <label>Duration <input name="duration" placeholder="1h" value="1h"></label>
+          <label>Priority (1 = highest) <input name="priority" type="number" min="1" max="9" value="3"></label>
+          <label>Buffer before (min) <input name="bufferBefore" type="number" min="0" value="0"></label>
+          <label>Buffer after (min) <input name="bufferAfter" type="number" min="0" value="0"></label>
+          <label>Earliest <input name="windowStart" placeholder="6am"></label>
+          <label>Latest end <input name="windowEnd" placeholder="10pm"></label>
+          <label>After task <input name="afterTask" placeholder="work"></label>
+          <label>Gap after (min) <input name="afterGap" type="number" min="0" value="0"></label>
+          <label>Before task <input name="beforeTask" placeholder="sleep"></label>
+          <label>Gap before (min) <input name="beforeGap" type="number" min="0" value="0"></label>
+          <label class="wide">Keep away from <input name="avoid" placeholder="sleep:240, meeting:30"></label>
+          <label class="check"><input name="movable" type="checkbox" checked> Can be moved</label>
+        </div>
+        <details>
+          <summary>Different time on certain days</summary>
+          <div class="grid days" id="days"></div>
+        </details>
+        <p id="formError" class="error"></p>
+        <button class="primary" type="submit">Save rule</button>
+        <button type="button" id="cancelEdit" hidden>Cancel</button>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2>3. Next 7 days</h2>
+      <button id="refresh">Refresh</button>
+      <ul id="events" class="list"></ul>
+    </section>
+  </main>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
